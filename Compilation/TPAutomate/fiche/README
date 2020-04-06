@@ -1,0 +1,41 @@
+#						  #
+#	     Fiches	          #
+#						  #			
+# # # # # # # # # # # # # #
+
+Les fiches d'erreurs sont les suivantes : erreurs/ erreur.txt et erreur2.txt
+
+	Erreur.txt  // ERREUR NON FATALE
+
+Dans cette fiche, pour le chauffeur DURAND, nous n'avons de volume citerne au début. Ce qui provoque par conséquent une erreur au cours 
+de la vérification de la somme des volumes livrés dans les différents magasins et le volume de la citerne. Résultat obtenu à la fin :
+
+CHAUFFEUR                   BJ        BG       ORD     NBMAG
+---------                   --        --       ---     -----
+DUPONT                       0       110       120         4
+POTIN                       90         0         0         1
+DURAND                       0         0        90         1
+
+	Erreur2.txt // ERREUR FATALE
+
+Dans cette fiche, nous avons plus de 10 chauffeurs. Ce qui provoque l'arrêt de l'analyse. Résultat obtenu à la fin :
+
+CHAUFFEUR                   BJ        BG       ORD     NBMAG
+---------                   --        --       ---     -----
+DURAND                     120       100       110         4
+DUPONT                       0       110         0         2
+POTIN                       90         0         0         1
+CESAR                        0         0        90         1
+ASTERIX                    120       100       110         4
+JEAN                         0         0        90         1
+BREST                        0         0        90         1
+OSIRIS                     120         0       110         2
+ZEUS                       120         0       110         2
+
+	Nombre maximum de chauffeurs atteint pour continuer tapez entree 
+
+	fin d'analyse pour continuer tapez entree 
+
+
+Les fiches qui ne contiennent pas d'erreurs sont : valides/ jeu.txt et jeu2.txt
+

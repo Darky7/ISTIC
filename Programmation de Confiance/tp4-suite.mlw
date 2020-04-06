@@ -1,0 +1,139 @@
+module LabySpec
+  use int.Int
+  use bool.Bool
+  use matrix.Matrix 
+  use ref.Ref
+  use random.Random (* pour utiliser random_int et random_bool dans mk_laby *)
+
+          (************************************************)
+          (******** LES DEFINITIONS DE TYPES **************)
+          (************************************************)
+
+
+  (* question 0 *)
+  type case = Libre | Mur | Sortie
+
+  type laby =  matrix case
+
+  type direction = Haut | Bas | Droite | Gauche
+
+          (************************************************)
+          (******** LES PREDICATS ET FONCTIONS   **********)
+          (************************************************)
+ 
+  (* question 1 *)          
+  predicate laby_valide (b : laby) = exists r c : int . valid_index b r c /\ get b r c = Sortie /\
+  forall x y: int . (x <> r) /\ (y <> c) /\ valid_index b x y -> get b x y = Mur || get b x y = Libre 
+
+   (* question 2 *)
+  predicate position_valide (b : laby) (i j : int) = 
+     laby_valide b /\ valid_index b i j /\ get b i j <> Mur
+
+  (* question 3 *)
+  predicate sortie_trouvee (b : laby) (i j : int) =
+      get b i j = Sortie
+  
+  
+  (* question 6 - à utiliser dans deplacement *)
+  function nouvelle_position (i j : int) (d : direction) : (int, int) = 
+     match d with 
+     
+     | Haut -> (i-1, j)
+     
+     | Bas -> (i+1, j)
+     
+     | Droite -> (i, j+1)
+     
+     | Gauche -> (i, j-1)         
+
+     end
+              
+ 
+           (*****************************************)
+           (******** LES SOUS-PROGRAMMES   **********)
+           (*****************************************)
+  
+  
+  (* question 4 *)
+  val (=) (x y:case) : bool   (* A utiliser dans gagne *)
+  ensures { result <-> x=y }
+          
+  let gagne (b : laby) (i j : int) : bool
+  requires { laby_valide b /\ valid_index b i j }
+  ensures { result = sortie_trouvee b i j }
+  =
+  get b i j = Sortie
+
+  (* question 5 *)
+  let peut_se_deplacer (b : laby) (i j : int) : bool
+  requires { laby_valide b /\ valid_index b i j }
+  ensures { result = position_valide b i j }  
+  =  
+  get b i j = Libre || get b i j = Sortie
+
+  
+  (* question 6 *)
+  (* Dans la specification, il faut utiliser la fonction 
+     nouvelle_position à définir plus haut *)
+  let deplacement (b : laby) (i j : int) (d : direction) : (int, int)
+  requires { position_valide b i j }
+  ensures { let x, y = nouvelle_position i j d in (position_valide b x y -> result = (x, y))
+        || (not position_valide b x y -> result = (i, j)) }
+  =
+    let x,y = i , j in 
+    match d with 
+     
+     | Haut ->  if 0 <= x - 1 < b.rows && 0 <= y < b.columns && get b (x-1) y <> Mur then (x-1, y) else (x,y) 
+     
+     | Bas ->  if 0 <= x +1 < b.rows && 0 <= y < b.columns && get b (x+1) y <> Mur then (x+1, y) else (x,y) 
+     
+     | Droite -> if 0 <= x < b.rows && 0 <= y + 1 < b.columns && get b x (y+1) <> Mur then (x, y+1) else(x,y) 
+     
+     | Gauche ->  if 0 <= x < b.rows && 0 <= y - 1 < b.columns && get b x (y-1) <> Mur then (x, y -1) else (x,y)          
+
+     end  
+
+  (* question 9 *)
+  let mk_laby (n : int) (m : int) : laby
+  requires { n > 0 /\ m > 0 }
+  ensures  { laby_valide result }
+  =
+    let b:laby = make n m Libre in
+    let x = random_int b.rows in
+    let y = random_int b.columns in
+        set b x y Sortie;
+        b
+  
+ let position_initiale (b : laby) : (int, int)
+  requires { laby_valide b }
+  ensures { let x, y = result in position_valide b x y -> get b x y <> Mur }
+  =
+    let x = ref 0 in
+    let y = ref 0 in
+    for i = 0 to (b.rows-1) do
+    invariant { 0 <= i <= b.rows }
+      for j = 0 to (b.columns-1) do
+      invariant { 0 <= j <= b.columns }
+       invariant{ exists a r : int. a < b.rows && r < b.columns && valid_index b a r && get b a r <> Mur }
+        if (get b i j <> Mur) then
+           x := i;
+         y := j
+      done;
+    done;
+    (!x,!y)
+    
+    end
+module LabyTest
+  use LabySpec
+
+ let testLaby () = 
+      let m = mk_laby 3 4 in
+      let i,j = position_initiale m in
+      assert { laby_valide m } ;
+      assert { position_valide m i j } ;
+      let b = peut_se_deplacer m i j in
+      assert { b } ;
+      let i',j' = deplacement m i j Haut in
+      assert { position_valide m i' j' }
+
+end

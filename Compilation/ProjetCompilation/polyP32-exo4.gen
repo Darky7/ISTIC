@@ -1,0 +1,44 @@
+FICHIER polyP32-exo4.gen : 
+
+   1  reserver        3
+   3  lirent    
+   4  affecterg       0
+   6  contenug        0
+   8  empiler        -1
+  10  eg        
+  11  bsifaux        23
+  13  empiler         0
+  15  affecterg       1
+  17  empiler         0
+  19  affecterg       2
+  21  bincond        31
+  23  contenug        0
+  25  affecterg       1
+  27  contenug        0
+  29  affecterg       2
+  31  contenug        0
+  33  empiler        -1
+  35  diff      
+  36  bsifaux        69
+  38  contenug        0
+  40  contenug        2
+  42  sup       
+  43  bsifaux        51
+  45  contenug        0
+  47  affecterg       2
+  49  bincond        64
+  51  contenug        0
+  53  contenug        1
+  55  inf       
+  56  bsifaux        64
+  58  contenug        0
+  60  affecterg       1
+  62  bincond        64
+  64  lirent    
+  65  affecterg       0
+  67  bincond        31
+  69  contenug        1
+  71  ecrent    
+  72  contenug        2
+  74  ecrent    
+  75  arret     

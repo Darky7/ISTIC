@@ -1,0 +1,116 @@
+module TP7
+  use int.Int
+  use ref.Ref
+  use int.MinMax
+  use option.Option
+  use bintree.Tree
+  use bintree.Occ (* pour utiliser (occ elt arbre) 
+                     et (mem elt arbre)         *)
+
+predicate estABR (a: tree int) =
+(forall x:int. mem x a -> occ x a = 1) /\
+match a with
+|Empty ->true
+|Node g v d -> estABR g /\ estABR d /\
+
+(forall x:int. mem x g-> x < v ) /\ (forall x:int. mem x d-> x > v )
+end
+(* Ne pas modifier la ligne ci-dessus *)
+(* Seul true est à modifier *)    
+    
+(* Rappel :
+   type option 'a = None | Some 'a             *)
+
+ let rec rechercher_min (a: tree int) : option int
+ variant{a}
+ requires { estABR a }
+ ensures { 
+ match a with
+ |Empty -> result = None
+ |Node g v d -> (exists x:int . mem x a /\ (forall y:int . (mem y a /\ y<>x) -> y>x) /\ result = Some x)
+  end }
+  =
+  match a with
+  |Empty -> None
+  |Node Empty v Empty -> Some v
+  |Node Empty v d -> Some v
+  |Node g v Empty -> rechercher_min g
+  |Node g v d -> rechercher_min g
+  end
+  
+(* à modifier et compléter *)    
+
+ let rec rechercher_max (a: tree int) : option int
+ variant {a}
+ requires { estABR a }
+ ensures { 
+ match a with
+ |Empty -> result = None
+ |Node g v d -> (exists x:int . mem x a /\ (forall y:int . (mem y a /\ y<>x) -> y<x) /\ result = Some x)
+  end }
+   =
+  match a with
+  |Empty -> None
+  |Node Empty v Empty -> Some v
+  |Node g v Empty -> Some v
+  |Node Empty v d -> rechercher_max d
+  |Node g v d -> rechercher_max d
+  end
+  
+(* Consigne à respecter pour inserer :
+   dans la spécification, utiliser occ, et non pas mem
+   (qui s'appelait contient en TD)                  *)   
+ let rec inserer (a : tree int) (k : int) : tree int
+ variant {a}
+ requires { estABR a }
+ requires  {occ k a = 0}
+ ensures { estABR result }
+ ensures { occ k result = 1 }
+ ensures { forall x:int . occ x a = 1 -> occ x result = 1 }
+ ensures { forall x:int . (x<>k) /\ (occ x result = 1) -> occ x a = 1 }
+ =
+ match a with
+ |Empty -> Node Empty k Empty
+ |Node g v d -> if k <= v then Node (inserer g k) v d else Node g v (inserer d k)
+ end
+ 
+let rec supprimer_max (a: tree int): (tree int, int) (* à compléter *)
+requires{estABR a}
+requires{a <> Empty}
+variant{a}
+ensures{let(abr,i)= result in estABR abr /\ occ i a =1 /\ occ i abr=0}
+ensures{let(abr,i) = result in forall k:int. (occ k abr =1) -> k<i }
+ensures {let (abr,i)= result in forall k:int.(k<>i) /\(occ k a = 1) -> occ k abr = 1}
+ensures{let (abr,i) = result in forall k:int . (occ k abr = 1) -> occ k a = 1}
+
+
+=
+    match a with
+        |Empty -> absurd
+        |Node Empty v Empty-> (Empty,v)
+        |Node g v Empty -> (g,v)
+        |Node g v d -> let (abr,i) = (supprimer_max d) in 
+                      (Node g v abr, i)
+        end
+
+ let rec supprimer (a : tree int) (x : int) : tree int
+ variant{a}
+ requires { estABR a }
+ requires { occ x a = 1}
+ ensures { estABR result /\ occ x result = 0 }
+ ensures { forall k:int . (x<>k) /\ (occ k a = 1) -> occ k result = 1 }
+ ensures { forall k:int . occ k result = 1 -> occ k a = 1 }
+ =
+ match a with
+ |Empty -> absurd
+ |Node Empty v Empty ->  Empty 
+ |Node Empty v d -> if x=v then d else Node Empty v (supprimer d x)
+ |Node g v Empty -> if x=v then g else Node (supprimer g x) v Empty
+ |Node g v d ->  if x>v then Node g v (supprimer d x) else 
+                if x<v then Node (supprimer g x) v d else 
+                 let (m,n) = supprimer_max g in
+                 Node m n d
+               
+ 
+ end
+end

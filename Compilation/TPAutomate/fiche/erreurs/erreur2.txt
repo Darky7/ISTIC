@@ -1,0 +1,65 @@
+DURAND 120
+
+  BEAUJOLAIS vieillesgaleries 50  prixmultiples 70 ,
+
+  prixmultiples 110,
+
+  BOURGOGNE      potin 50 vieillesgaleries 40 elephant 10;
+
+
+DUPONT   110
+
+  BOURGOGNE      croisement 70 superv 40;
+
+
+POTIN  140
+
+  BEAUJOLAIS     potin 90 ;
+
+
+CESAR
+
+  elephant 90;
+
+ASTERIX 120
+
+  BEAUJOLAIS vieillesgaleries 50  prixmultiples 70 ,
+
+  prixmultiples 110,
+
+  BOURGOGNE      potin 50 vieillesgaleries 40 elephant 10;
+
+JEAN
+
+	potin 90 ;
+
+BREST
+
+	elephant 90;
+
+OSIRIS 140
+	
+  BEAUJOLAIS vieillesgaleries 50  prixmultiples 70 ,
+
+  prixmultiples 110;
+
+
+ZEUS 120
+
+  BEAUJOLAIS vieillesgaleries 50  prixmultiples 70 ,
+
+  prixmultiples 110;
+
+JULES
+
+	elephan 16;
+
+CARL 100
+
+   BOURGOGNE      potin 50 vieillesgaleries 40 elephant 10;
+
+ATHOS 100
+
+   BOURGOGNE      potin 50 vieillesgaleries 40 elephant 10;
+
+ /

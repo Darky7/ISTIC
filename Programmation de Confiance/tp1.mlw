@@ -1,0 +1,349 @@
+(* ***** Exercice 0 ***** *)
+module Ex0
+  use int.Int
+  
+  val somme (i j : int) : int
+  ensures { result = i + j}
+ 
+end
+
+module Ex0Test
+  use int.Int
+  use Ex0
+
+  let test0 () = assert { 2 < 4 }
+
+  let test1 () = 
+      let tmp = somme 3 4 in
+        assert { tmp = 7 };
+        assert { 0 < tmp }
+
+  let test2 () = 
+      let tmp = somme (-6) (-4) in
+        assert { tmp = -10 };
+        assert { tmp < 0 }
+     
+  let test3 () = 
+      let tmp = somme 0 0 in
+        assert { tmp = 0 }
+   
+   let test4 () = 
+      let tmp = somme 4 (-6) in
+        assert { tmp = -2 };
+        assert { tmp < 0 }
+      
+end
+
+(* ***** Exercice 1 ***** *)
+module Ex1
+  use int.Int
+  
+  let mauvaismax (i j : int) : int
+  ensures { result = i \/ result = j }
+  =
+    if(i<=j) then j 
+    else i
+         
+  let max (i:int) (j:int) : int
+  ensures { i <= j -> result = j }
+  ensures { i > j -> result = i }
+  =
+    if(i<=j) then j 
+    else i
+
+  let max2 (i:int) (j:int) : int
+  requires { 0 < i /\ 0 < j }
+  ensures { i <= j -> result = j }
+  ensures { i > j -> result = i }
+  = 
+    if(i<=j) then j 
+    else i
+
+  let min (i:int) (j:int) : int
+  requires { 0 < i /\ 0 < j }
+  ensures { i <= j -> result = i }
+  ensures { i > j -> result = j }
+  = 
+    if(i<=j) then i
+    else j
+
+
+end
+
+module Ex1Test
+  use int.Int
+  use Ex1
+
+  let test1 () = 
+      let tmp = mauvaismax 3 4 in
+      assert { tmp = 4 }
+
+  let test2 () = 
+      let tmp = max 3 4 in
+      assert { tmp = 4 }
+     
+  let test3 () = 
+      let tmp2 = max2 3 4 in
+      assert { tmp2 = 4 }
+      
+   let test12 () = 
+      let tmp = mauvaismax 3 3 in
+      assert { tmp = 3 }
+
+  let test21 () = 
+      let tmp = max 3 3 in
+      assert { tmp = 3 }
+     
+  let test31 () = 
+      let tmp2 = max2 3 3 in
+      assert { tmp2 = 3 }   
+
+   (* Nous remarquons que seul le sous-programme max2
+      admet une bonne specification. *)
+     
+  let test4 () = 
+      let tmp2 = min 3 2 in
+      assert { tmp2 = 2 }   
+
+end
+
+(* ***** Exercice 2 ***** *)
+module Ex2
+  use int.Int
+  
+  (* Question 1 *)
+  val abs (n : int) : int
+  requires { 0 < n \/ n < 0 }
+  ensures { n < 0 -> result = 0 }
+  ensures { 0 < n -> result = n }
+  
+  (* Question 3 *)
+  let abs1 (n : int) : int
+  requires { 0 < n \/ n < 0 }
+  ensures { n < 0 -> result = 0 }
+  ensures { 0 < n -> result = n }
+  = 
+     if (n > 0) then n
+     else 0
+ 
+  (* Question 4 *)
+  val abs2 (n : int) : int
+  requires { n < 0 }
+  ensures { n < 0 -> result = 0 }
+  ensures { 0 < n -> result = n }
+  
+  (* Question 4 *)
+  let abs3 (n : int) : int
+  requires {n < 0}
+  ensures { n < 0 -> result = -n }
+  = 
+     -n
+     
+  (* Question 5 *)
+  let abs4 (n : int) : int
+  requires { n < -2 /\ n < 0 }
+  ensures { n + 2 < 0 -> result = -(n + 2) }
+  = 
+     -(n + 2)
+  
+  (* Question 5 :: L'entier n doit être
+    stritement inférieur a -2 et stritement
+    inférieur à 0 *)
+     
+  (* Question 6 *)
+  let abs5 (n : int) : int
+  requires { n < -2 /\ n < 0 }
+  ensures { n + 1 < 0 -> result = -(n + 1) }
+  = 
+     -(n + 1)
+  (* Question 6 :: Le programme fonctionne 
+     pour toutes les valeurs de n < -3 *)
+     
+  (* Question 7 *)
+  let abs6 (n : int) : int
+  requires { 0 < n \/ n < 0 }
+  ensures { n < 0 -> result = -n }
+  ensures { 0 < n -> result = n }
+  = 
+     if (n > 0) then n
+     else -n
+    
+end
+
+module Ex2Test
+  use int.Int
+  use Ex2
+
+  let test1 () =
+    let tmp = abs (-6) in
+       assert { 0 <= tmp };
+       assert { tmp = 6 }
+  
+  (* Question 2 *)
+  let test12 () =
+    let tmp = abs (-6) in
+       assert { 0 <= tmp };
+       assert { tmp = 0 }
+  
+  (* Question 2 *)    
+  let test13 () =
+    let tmp = abs 6 in
+       assert { 0 <= tmp };
+       assert { tmp = 6 }
+  
+  (* Question 3 *) 
+  let test2 () =
+    let tmp = abs1 6 in
+       assert { 0 <= tmp };
+       assert { tmp = 6 }
+ 
+  let test21 () =
+    let tmp = abs1 (-6) in
+       assert { 0 <= tmp };
+       assert { tmp = 0 }
+  
+  let test3 () =
+    let tmp = abs1 (-6) in
+       assert { 0 <= tmp };
+       assert { tmp = 0 }
+       
+  let test4 () =
+    let tmp = abs4 (-3) in
+       assert { 0 <= tmp };
+       assert { tmp = 1 }
+   
+  let test41 () =
+    let tmp = abs4 (-2) in
+       assert { 0 <= tmp };
+       assert { tmp = 0 }
+       
+  let test5 () =
+    let tmp = abs5 (-2) in
+       assert { 0 <= tmp };
+       assert { tmp = 1 }
+  
+  let test6 () =
+    let tmp = abs1 (-6) in
+       assert { 0 <= tmp };
+       assert { tmp = 6 }    
+end
+
+(* ***** Exercice 3 ***** *)
+ module Ex3
+  use int.Int
+  use ref.Ref
+  use ref.Refint
+  
+  (* Question 1 *)
+  let boucle (n:int)
+  requires { 0 < n }
+  ensures { result = n }
+  =
+  let i = ref 0 in 
+     while !i < n do
+        invariant { 0 <= !i <= n+2 }
+        variant { n - !i }
+        incr i
+     done;
+     assert { !i = n };
+  !i 
+  
+  (* Question 2 *)
+  let boucle2 (n:int)
+  requires { 0 < n }
+  ensures { result = n }
+  =
+  let i = ref 0 in 
+     while (not (!i = n)) do
+        invariant { 0 <= !i <= n }
+        variant { n - !i }
+        incr i
+     done;
+     assert { !i = n };
+  !i  
+
+
+   (* Question 3 *)
+   let boucle_q3(n : int) : int
+   requires { 0 < n }
+   ensures {result = 0}
+   =
+   let i = ref n in
+      while (0 < !i) do
+        invariant{ 0 < !i }
+        variant { !i - 1 }
+        decr i
+    done;
+    assert{ n = 0 };
+  !i
+  
+end
+
+module Ex3Test
+  use int.Int
+  use Ex3
+
+  let test () = 
+      let tmp = boucle 4 in
+      assert {  tmp = 4 }  
+  (* Question 1 :: On remarque que le test marche avec
+     succès. Why3 parvient a vérifié que i est tout
+     le temps compris en 0 et 6. Cet invariant est vrai
+     en debut de boucle et est preservé. 
+     L'assertion est aussi verifié parce que la boucle
+     s'arrête a i = 4 *)
+  
+  (* Question 2 *)
+  let test2 () = 
+      let tmp = boucle 4 in
+      assert {  tmp = 4 }  
+      
+   (* Question 2 :: Oui why3 ne parvient pas a vérifié
+      l'assertion. Oui le variant de la boucle doit être
+       modifié. *)
+  
+  (* Question 4 *)
+  let test3 () = 
+      let tmp = boucle_q3 4 in
+      assert {  tmp = 0 }  
+      
+end
+
+(* ***** Exercice 4 ***** *)
+
+
+(* ***** Après avoir débogué le programme via Why3,
+nous avons remarqué que le programme calcule x+y or d'apres 
+la postcondition le programme doit retourner 2x+y donc 
+nous avons modifié le code du programme pour retrouver la postcondition
+demandée***** *)
+
+module Ex4
+  use int.Int
+  use ref.Ref
+
+  let calcul (x y: int) : int
+  requires {0 <= x }
+  requires {0 <= y }
+  ensures { result = 2*x + y } 
+  = let r = ref x in
+    let n = ref y in
+    while !n <> 0 do
+      invariant { !r = x + y - (!n) /\ 0 <= !n }
+      variant   { !n }
+        r := !r + 1;
+        n := !n - 1
+    done;
+    2* !r-y
+
+end
+
+module Ex4Test
+  use int.Int
+  use Ex4
+  
+  let test() = 
+    let tmp = calcul 5 3 in
+    assert { tmp = 13 }
+
+end

@@ -1,0 +1,33 @@
+FICHIER polyP32-exo5.gen : 
+
+   1  reserver        7
+   3  lirent    
+   4  affecterg       2
+   6  lirent    
+   7  affecterg       4
+   9  empiler         0
+  11  affecterg       5
+  13  contenug        2
+  15  affecterg       3
+  17  contenug        3
+  19  empiler         0
+  21  supeg     
+  22  bsifaux        46
+  24  lirent    
+  25  affecterg       6
+  27  contenug        6
+  29  contenug        5
+  31  contenug        4
+  33  mul       
+  34  add       
+  35  affecterg       5
+  37  contenug        3
+  39  empiler         1
+  41  sous      
+  42  affecterg       3
+  44  bincond        17
+  46  contenug        4
+  48  ecrent    
+  49  contenug        5
+  51  ecrent    
+  52  arret     

@@ -1,0 +1,165 @@
+module TriEx1 (* EXERCICE 1 *)
+  use int.Int
+  use ref.Ref
+  use ref.Refint
+  use array.Array
+  use array.IntArraySorted (* sorted et sorted_sub *)
+  use array.ArraySwap      (* swap *)
+  use array.ArrayPermut    (* permut_all *)
+  use array.ArrayEq
+
+(* Prédicats et sous-programme utiles (et vus au cours 3)
+
+  predicate sorted (a : array int)
+
+  predicate sorted_sub (a : array int) (i j : int)
+
+  predicate permut_all (a1 a2: array 'a)
+
+  val swap (a: array int) (i: int) (j: int) =
+  requires { 0 <= i < length a /\ 0 <= j < length a }
+  ensures { exchange (old a) a i j }
+*)
+
+(* Question 1 *)
+let minimum (t:array int) (m n:int) : int
+requires{ length t >= 0 /\ 0 <= m <= n < length t }
+ensures{ forall i:int . m <= i < n -> (exists result:int . t[result] <= t[i] /\ m <= result < n) }
+=
+let tmp = ref t[m] in
+let indice = ref 0 in
+for i = m to (n-1) do
+  invariant { forall k:int . m <= k < i -> (exists y:int . t[y] <= t[k]) }
+  if !tmp >= t[i] then indice := i; tmp := t[i]
+done;
+!indice
+
+(* Question 2 *)
+let tri_selection (t: array int) : unit
+requires{ length t >= 0 }
+ensures { sorted t /\ permut_all (old t) t }
+=
+let min = ref 0 in
+    for i = 0 to length t - 1 do
+      invariant { sorted_sub t 0 i /\ permut_all (old t) t /\
+          forall p r: int. 0 <= p < i <= r < length t -> t[p] <= t[r] }
+       min := i;
+      for j = i + 1 to length t - 1 do
+        invariant {
+          i <= !min < j && forall k: int. i <= k < j -> t[!min] <= t[k] }
+        if t[j] < t[!min] then min := j
+        done;
+      if !min <> i then swap t !min i
+      done
+
+(* Question 2 : test *)
+(* Ce test est à exécuter depuis un terminal,
+   avec la commande suivante :
+   
+why3 execute tp6.mlw TriEx1.test_triSelection
+  
+*)
+
+  let test_triSelection() : array int = 
+  let t = make 9 1 in 
+  t[0] <- 9 ; t[1] <- 7 ; t[2] <- 8 ; t[3] <- 5;
+  t[4] <- 2 ; t[5] <- 4 ; t[6] <- 3 ; t[7] <- 6;
+  tri_selection t ; 
+  t
+
+
+end
+
+module TriEx2 (* EXERCICE 2 *)
+  use int.Int
+  use ref.Ref
+  use ref.Refint
+  use array.Array
+  use array.IntArraySorted
+  use array.ArrayPermut
+  use array.ArrayEq
+
+(* Question 1 *)
+(* Compléter la spécification et les invariants du programme suivant *)
+(* Cette version est plus simple que celle proposée sur wikipedia.   *)
+
+let tri_insertion_v0 (t: array int) : unit 
+  ensures { sorted t /\ permut_all (old t) t }
+  =
+ (* a modifier et completer  *) 
+
+(* Code à utiliser pour cette version, sans le modifier *)
+     for i = 1 to (length t) - 1 do
+      invariant { sorted_sub t 0 i /\ permut_all (old t)  t}
+      
+      let courant = t[i] in 
+      let j = ref i in 
+      
+      while (!j > 0 && t[!j - 1] > courant) do
+        invariant { 0 <= !j <= i }
+        invariant { forall k1 k2: int. 0 <= k1 <= !j /\ !j+1 <= k2 <= i -> t[k1] <= t[k2] }
+        invariant { sorted_sub t 0 !j }
+        invariant {sorted_sub t !j (i+1) }
+        invariant { permut_all (old t) t[!j<-courant] }
+        variant { !j }
+        t[!j] <- t[!j - 1] ;
+        t[!j - 1] <- courant ;
+        decr j
+      done
+      
+    done  
+
+
+
+(* Question 2 *)
+(* En s'inspirant de tri_insertion_v0, spécifier, programmer et prouver 
+   la version plus optimisée de wikipedia *)
+  let tri_insertion (t: array int) : unit 
+  ensures { sorted t /\ permut_all (old t) t }
+  =
+  let courant =ref 0 in
+  let j= ref 0 in
+  for i = 1 to (length t-1) do
+  invariant { sorted_sub t 0 i /\ permut_all (old t) t }
+  courant := t[i];
+  j:=i;
+  while(!j>0 && t[!j-1] > !courant) do
+  variant { !j }
+  t[!j]<-t[!j-1];
+  j:= !j-1;
+done;
+t[!j]<- !courant;
+done
+
+end
+
+module TriEx3 (* EXERCICE 3 *)
+  use int.Int
+  use ref.Ref
+  use ref.Refint
+  use array.Array
+  use array.IntArraySorted
+  use array.ArraySwap
+  use array.ArrayPermut
+  use array.ArrayEq
+  
+let tri_bulles (t: array int) : unit
+ensures { sorted t /\ permut_all (old t) t }
+  =
+  for i=length t-1 downto 1 do 
+    invariant{permut_all (old t) t }
+    invariant{sorted_sub t i (length t)}
+    invariant{forall k l:int. 0<=k<=i<l<length t -> t[k]<=t[l]}
+  for j=0 to i-1 do 
+    invariant{permut_all (old t) t }
+    invariant{sorted_sub t i (length t)}
+    invariant{forall k l:int. 0<=k<=i<l<length t -> t[k]<=t[l]}
+    invariant{forall k:int . 0<=k<=j ->t[k]<=t[j]}
+
+  if(t[j]> t[j+1]) then swap t j (j+1);
+    done;
+done
+ 
+
+
+end  

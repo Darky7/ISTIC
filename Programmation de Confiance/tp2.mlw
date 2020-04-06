@@ -1,0 +1,173 @@
+module Ex1
+  use int.Int
+  use ref.Ref
+
+  let f1 () : int
+  ensures {result = 100}
+  =
+    let n = ref 0 in
+      while !n < 100 do
+        invariant{0 <= !n <= 100}
+        variant{100 - !n}
+        n := !n + 1
+     done;
+     !n
+
+  let f2 () : int 
+  ensures {result = 0}
+  =
+    let n = ref 100 in
+      while !n > 0 do
+        invariant{0 <= !n <=100}
+        variant{!n - 1}
+        n := !n - 1
+      done;
+      !n
+
+end
+
+module Ex1Test
+  use int.Int
+  use ref.Ref
+  use Ex1
+  
+  let test()=
+    let tmp = f1 () in
+      assert{tmp = 100}
+      
+  let test2()=
+    let tmp = f2 () in
+      assert{tmp = 0}
+      
+end
+
+module Ex2
+  use int.Int
+  use ref.Ref
+  use array.Array
+  use array.ArraySum
+  
+  predicate tab_entier (a: array int) =
+  forall k:int. 0<= k < (length a) -> a[k]>=0
+  
+  val somme_tab (a: array int) : int
+  requires{tab_entier a}
+  ensures{result = sum a 0 (length a)}
+  
+  let somme_tab2 (a: array int) : int
+  requires{tab_entier a}
+  ensures{result = sum a 0 (length a)}
+  =
+    let n = ref 0 in
+    for i = 0 to (length a - 1) do
+      invariant{0<=i && !n=sum a 0 i}
+      n := !n + a[i]
+    done;
+    !n
+      
+
+end
+
+module Ex2Test
+  use Ex2
+  use array.Array
+  
+  let test()=
+    let tab = make 5 2 in
+      let tmp = somme_tab tab in
+        assert{tmp = 10}
+        
+  let test2()=
+    let tab = make 5 2 in
+      let tmp = somme_tab2 tab in
+        assert{tmp = 10}
+
+end
+
+module Ex3
+  use int.Int
+  use ref.Refint
+
+  predicate entier_positif (a b: int) = a >= 0 /\ b > 0 /\ a > b
+  
+  
+  val division (a b: int) : int
+  requires{entier_positif a b}
+  ensures{exists k: int. result * b + k = a && 0 <= k < b}
+  
+  let division2 (a b: int) : int
+  requires{entier_positif a b}
+  ensures{exists k: int. result * b + k = a && 0 <= k < b}
+  =
+  let q= ref 0 in
+  let r=ref a in 
+  while !r >= b do
+  invariant { !q * b + !r = a && 0 <= !r }
+      variant   {!r - b  }
+      r:= !r - b;
+      incr q;
+      done;
+      !q
+
+
+end
+
+
+module Ex3Tests
+  use int.Int
+  use Ex3
+  
+  let mon_test () =
+    let q = division 12 3 in
+      assert { q  = 4 };
+    let q2 = division 13 3 in
+      assert { q2  = 4 }
+
+  let mon_test2 () =
+    let q = division2 100 4 in
+      assert { q  = 25 }
+
+
+end
+
+module Ex4
+  use ref.Refint
+  use ref.Ref
+  use number.Gcd
+
+  val pgcd (a b: int) : int
+  requires{ 0<a && 0<b}
+  ensures{ result = gcd a b }
+  
+  
+  let pgcdbis (a b: int) : int
+  requires{ 0<a && 0<b}
+  ensures{ result = gcd a b }
+  =
+      let p = ref a in
+      let q = ref b in
+      while(!p <> !q) do
+      invariant{ !p>=0 && !q>=0}
+      variant {!p - !q >=0 \/ !q - !p >=0}
+      if(!p > !q) then p := !p - !q else
+           q:= !q - !p
+          done;
+          !p
+      
+  
+
+end
+
+module Ex4Test
+  use ref.Refint
+  use Ex4
+
+  let test()=
+    let tmp = pgcd 3 5 in
+      assert{tmp = 1 }
+      
+      let test2()=
+    let tmp = pgcdbis 3 5 in
+      assert{tmp = 1 }
+
+end

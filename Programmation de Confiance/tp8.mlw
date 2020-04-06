@@ -1,0 +1,184 @@
+module Ex1
+use int.Int
+use array.Array
+use bintree.Tree
+use bintree.Occ
+
+  type elt = int
+
+(* Écrire un programme remplir, qui parcourt un arbre t selon un parcours préfixe
+   (i.e. gauche puis racine puis droite) pour remplir un tableau a à partir de 
+   son indice valide debut, tant qu'il y a de la place dans le tableau. 
+   Le reste du tableau est inchangé.
+   Le programme renvoie l'indice de la prochaine case à remplir dans le tableau.
+*)
+
+    val remplir (t: tree elt) (a: array elt) (debut: int) : int
+    requires { true  (* a modifier *) }
+    writes { a }
+    ensures  { true (* a modifier *) }
+
+end
+
+(* Exercice 2 examen *)
+module Ex2
+use int.Int
+use ref.Ref
+use int.Fibonacci
+function fibonacci int : int 
+axiom fib0: fibonacci 0=0
+axiom fib1: fibonacci 1=1
+axiom fibn: forall n:int. n>=2 ->fibonacci n= fibonacci (n-1)+ fibonacci (n-2)
+
+let fib (n:int) : int
+requires { 0 <= n }
+ensures { result = fib n }
+=
+    let y = ref 0 in
+    let x = ref 1 in
+    for i = 0 to n-1 do
+    invariant { 0 <= i <= n /\ fib (i) = !y /\ fib(i+1) = !x }
+    let aux= !y in
+    y:= !x;
+    x:= !x + aux
+    done;
+    !y
+      
+let fib_bis ( n:int) : int
+requires { 0 <= n }
+ensures { result = fib n }
+=
+    let y = ref 0 in
+    let x = ref 1 in
+    let i = ref 0 in
+    while(!i<n) do
+    invariant { fib (!i) = !y /\ fib(!i+1) = !x }
+    variant {n - !i}
+    let aux = !y in
+    y:= !x;
+    x:= !x + aux;
+    i:= !i + 1
+    done;
+    !y
+
+end
+
+(* Exercice 4 Examen *)
+module TasEquilibre
+use  int.Int
+use  bintree.Tree
+use  bintree.Size 
+use  bintree.Occ 
+
+  type elt = int
+
+  predicate est_tas (t: tree elt) =
+  match t with
+      |Empty -> true
+      |Node Empty v Empty -> true
+      |Node g v d -> (forall x:elt . occ x g = 1 -> v < x)  /\ (forall x:elt . occ x d = 1 -> v < x) /\ est_tas d /\ est_tas g
+  end
+
+  predicate est_equilibre (t: tree elt) = 
+  match t with
+      |Empty -> true
+      |Node Empty v Empty -> false
+      |Node Empty v d -> false
+      |Node g v Empty -> exists x:elt . occ x g = 1 /\ x = 1
+      |Node g v d -> exists x:elt . occ x d = 1 /\ x = 1    (* erreur *)                                             
+  end
+
+
+  let rec ajouter (x: elt) (a: tree elt) : tree elt
+  variant { a }
+  requires { est_tas a }
+  requires { occ x a = 0 }
+  ensures { est_tas result }
+  ensures { est_equilibre result }
+  ensures { occ x result = 1 }
+  ensures { forall k:elt . occ k a = 1 -> occ k result = 1 }
+  ensures { forall k:elt . x<>k /\ occ k result = 1 -> occ k a = 1 }
+  =
+      match a with
+          |Empty -> Node Empty x Empty
+          |Node g v d -> if x <= v then Node (ajouter x d) x g
+                         else 
+                            Node (ajouter x d) v g
+                            
+      end
+
+end
+
+module ExamenExo1
+  use int.Int
+  use array.Array
+  use ref.Ref
+
+  (* Q1 *)
+  type case = Blanc | Noir
+  
+  type tabNB = array case
+ 
+  (* = *)
+  val (=) (x y :case) : bool   
+  ensures { result <-> x=y }
+ 
+  (* Q2 *)
+  predicate monochrome (t: tabNB) (i j :int) (c : case)=
+  forall k:int . 0 <= i <= k < j <= length t -> t[k] = c
+      
+  predicate est_trie (t : tabNB) = 
+  exists i j:int . 0 <= i < j <= length t && monochrome t 0 i Noir && monochrome t (i+1) (length t) Blanc
+      
+ 
+  (* Q3 *)
+  let ppetit_indice_blanc (t: tabNB) : int
+  requires { est_trie t }
+  ensures { exists result : int . 0 <= result < length t /\ t[result] = Blanc /\ forall l : int .
+            0 <= l < result -> t[l] = Noir  }
+  =
+      let i = ref 0 in
+      let r = ref true in
+      let x = ref 0 in
+      while (!i < length t && !r) do 
+        invariant { 0 <= !i <= length t }
+        invariant { exists k : int . 0 <= k < !i /\ t[k] = Blanc /\ forall l : int .
+            0 <= l < k -> t[l] = Noir }
+        variant { length t - !i }
+        let tmp = t[!i] in
+        if tmp = Blanc then 
+        begin
+            x:= !i;
+            r:= false
+        end
+        else
+            i:= !i + 1
+      done;
+      !x
+      
+end
+
+module TestExamenExo1
+  use int.Int
+  use array.Array
+  use ExamenExo1
+
+  (* Predicat est_trie test *)
+  let testPredicat () =
+    let t = make 5 Noir : tabNB in
+    assert { t[0] = Noir };
+    t[3] <- Blanc;
+    t[4] <- Blanc;
+    assert { t[4] = Blanc };
+    assert { est_trie t }
+ 
+    
+  (* Q4 *)
+  let testIndiceBlanc () =
+      let t = make 5 Noir : tabNB in
+      t[3] <- Blanc;
+      let tmp = ppetit_indice_blanc t in
+      assert { tmp = 3 }
+  
+ 
+end

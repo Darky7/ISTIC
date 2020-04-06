@@ -1,0 +1,10 @@
+FICHIER Test.desc :
+
+unite          programme
+tailleCode     6
+tailleGlobaux  0
+nbDef          0
+nbRef          0
+nbTransExt     0
+tabDef          
+tabRef          

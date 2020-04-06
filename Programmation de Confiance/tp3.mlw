@@ -1,0 +1,120 @@
+(* Binome :
+  AGUESSY Onésime
+  DONOU Dario *)
+  
+module TP31
+  use int.Int
+  use matrix.Matrix
+
+  (* Question 2 Exo 1*)
+  type mint = matrix int
+  
+  (* Question 4 Exo 1*)
+  function nbelts (m: mint) : int = m.rows * m.columns
+ 
+  let nbeltsProg (m: mint) : int
+  ensures { result = nbelts m }
+  = 
+    m.rows*m.columns
+  
+  (* Question 5 Exo 1*)
+  predicate ttes_cases_sauf_une (m : mint) = 
+   exists k j:int. (valid_index m k j) /\ ( get m k j = 1 ) /\ forall r c :int . r<> k /\ c <> j /\ (valid_index m r c) ->get m r c = 2
+  
+end
+
+module Test31
+  use int.Int
+  use matrix.Matrix
+  use TP31
+
+  (* Question 3 Exo 1*)
+  let testLib () =
+    (* creation matrix et test *)
+    let matrixInt = make 3 4 0 : mint in
+    assert { get matrixInt 0 0 = 0 };
+    assert { matrixInt.rows = 3 };
+    assert { matrixInt.columns = 4 };
+    set matrixInt 0 0 2;
+    assert {get matrixInt 0 0 = 2}
+  
+  (* Question 6 Exo 1 *)
+  (* Cas de matrice contenant que la valeur 1 *)
+  let testPredicat () =
+    let matrixInt = make 3 4 1 : mint in
+    assert { ttes_cases_sauf_une matrixInt }
+ 
+  (* Cas de matrice contenant que la valeur 2 et une case a 1 *)
+  let testPredicat2 () =
+    let matrixInt = make 3 4 2 : mint in
+    set matrixInt 0 0 1; 
+    assert { ttes_cases_sauf_une matrixInt }
+
+  (* Cas de matrice contenant ni la valeur 1 ni la valeur 2 *)      
+  let testPredicat3 () =
+    let matrixInt = make 3 4 5 : mint in
+    assert { ttes_cases_sauf_une matrixInt }
+  
+end
+
+module TP32
+  use matrix.Matrix
+  (* Question 1 Exo 2*)
+  type couleur =  Bleu | Rouge | Vert
+  
+  (* Question 2 Exo 2*)
+  type mcouleur = matrix couleur
+  
+  (* Question 3 Exo 2*)
+  predicate ttes_bleues (m : mcouleur) = forall r c : int.(valid_index m r c) -> get m r c = Bleu
+  
+  (* Question 5 Exo 2*)
+  predicate au_moins_une_verte (m : mcouleur) = forall r c : int.(valid_index m r c) -> exists x y : int.(valid_index m x y) /\ (get m x y = Vert) 
+end
+
+module Test32
+  use matrix.Matrix
+  use TP32
+  
+  (* Question 4 Exo 2*)
+  (* creation matrix et test *)
+  let testMatrixColor () =
+    let matrixCouleur = make 3 4 Rouge : mcouleur in
+    assert { get matrixCouleur 0 0 = Rouge };
+    assert { matrixCouleur.rows = 3 };
+    assert { matrixCouleur.columns = 4 };
+    set matrixCouleur 0 0 Vert;
+    assert { get matrixCouleur 0 0 = Vert }
+
+  (* Cas de matrice contenant que Bleu *)
+  let testPredicat () =
+    let matrixCouleur = make 4 5 Bleu : mcouleur in
+    assert { ttes_bleues matrixCouleur }
+  
+  (* Cas de matrice ne contenant pas de Bleu mais des Rouge *)
+  let testPredicat2 () =
+    let matrixCouleur = make 4 5 Rouge : mcouleur in
+    assert { ttes_bleues matrixCouleur }
+  
+  (* Cas de matrice ne contenant des Bleu, des Rouge et des Vert *)
+  let testPredicat3 () =
+    let matrixCouleur = make 4 5 Rouge : mcouleur in
+    set matrixCouleur 0 0 Vert;
+    set matrixCouleur 1 1 Bleu;
+    assert { ttes_bleues matrixCouleur }
+    
+  (* Question 6 Exo 2 *)
+  (* Cas de matrice contenant que des Vert *)
+  let testPredicatVert () =
+    let matrixCouleur = make 4 5 Vert : mcouleur in
+    assert { au_moins_une_verte matrixCouleur }
+    
+  (* Cas de matrice contenant que des Rouge et une seule case Verte *)
+  let testPredicatVert2 () =
+    let matrixCouleur = make 4 5 Rouge : mcouleur in
+    set matrixCouleur 0 0 Vert;
+    assert { au_moins_une_verte matrixCouleur }
+    
+end
+
+
